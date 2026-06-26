@@ -93,6 +93,12 @@ const mojarManushProjectJson = {
         intensity: 0.6,
         tags: ['rain', 'earth'],
       },
+      overrides: {
+        intensity: 0.88,
+        glowOpacity: 0.56,
+        particleOpacity: 0.64,
+        emphasis: 0.86,
+      },
     },
     {
       id: 'line-08',
@@ -182,3 +188,77 @@ const mojarManushProjectJson = {
 }
 
 export const mojarManushProject = parseLyricProject(mojarManushProjectJson)
+
+const mojarManushFractalJson = {
+  ...mojarManushProjectJson,
+  id: 'mojar-manush-fractal',
+  theme: 'fractal_garden',
+  lyrics: mojarManushProjectJson.lyrics.map((line, idx) =>
+    idx === 3
+      ? {
+        ...line,
+        hints: {
+          ...line.hints,
+          mood: 'radiant',
+          intensity: Math.min(1, (line.hints.intensity ?? 0.5) + 0.18),
+        },
+        overrides: {
+          ...(line.overrides ?? {}),
+          bgStart: '#071018',
+          bgMiddle: '#0b2a1f',
+          bgEnd: '#123028',
+          emphasis: 0.78,
+        },
+      }
+      : idx === 6
+        ? {
+          ...line,
+          overrides: {
+            ...(line.overrides ?? {}),
+            intensity: 0.74,
+            glowOpacity: 0.5,
+            particleOpacity: 0.46,
+          },
+        }
+        : line,
+  ),
+}
+
+const mojarManushInkJson = {
+  ...mojarManushProjectJson,
+  id: 'mojar-manush-ink',
+  theme: 'ink_painting',
+  lyrics: mojarManushProjectJson.lyrics.map((line, idx) =>
+    idx === 0
+      ? {
+        ...line,
+        hints: {
+          ...line.hints,
+          mood: 'wonder',
+          intensity: 0.6,
+        },
+        overrides: {
+          ...(line.overrides ?? {}),
+          bgStart: '#0b0b0d',
+          bgMiddle: '#1b1a1f',
+          bgEnd: '#2b2730',
+          emphasis: 0.6,
+        },
+      }
+      : idx === 11
+        ? {
+          ...line,
+          overrides: {
+            ...(line.overrides ?? {}),
+            intensity: 0.72,
+            glowOpacity: 0.38,
+            particleOpacity: 0.22,
+            emphasis: 0.5,
+          },
+        }
+        : line,
+  ),
+}
+
+export const mojarManushFractalProject = parseLyricProject(mojarManushFractalJson)
+export const mojarManushInkProject = parseLyricProject(mojarManushInkJson)

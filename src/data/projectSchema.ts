@@ -14,6 +14,19 @@ export type LyricLine = {
   romanization: string
   translation: string
   hints: LyricHints
+  overrides?: {
+    // Visual overrides applied to this line. All fields optional and
+    // if present will replace or delta the computed visual effects.
+    warmth?: number
+    intensity?: number
+    drift?: number
+    glowOpacity?: number
+    particleOpacity?: number
+    emphasis?: number
+    bgStart?: string
+    bgMiddle?: string
+    bgEnd?: string
+  }
 }
 
 export type LyricProject = {
@@ -54,6 +67,42 @@ const defaultProject: LyricProject = {
   ],
 }
 
+export function createBlankProject(id = createProjectId()): LyricProject {
+  return {
+    id,
+    metadata: {
+      title: 'Untitled Project',
+      artists: ['Unknown Artist'],
+      source: 'My Projects',
+      language: 'Unknown',
+    },
+    theme: 'particle_dream',
+    lyrics: [
+      {
+        id: 'line-01',
+        native: '',
+        romanization: 'Add a first lyric line',
+        translation: 'Your translation or meaning appears here.',
+        hints: {
+          mood: 'neutral',
+          intensity: 0.5,
+          tags: [],
+        },
+      },
+    ],
+  }
+}
+
+export function renameProject(project: LyricProject, title: string): LyricProject {
+  return {
+    ...project,
+    metadata: {
+      ...project.metadata,
+      title: readString(title, project.metadata.title),
+    },
+  }
+}
+
 export function parseLyricProject(input: unknown): LyricProject {
   if (!isRecord(input)) {
     return defaultProject
@@ -70,6 +119,14 @@ export function parseLyricProject(input: unknown): LyricProject {
     theme: parseTheme(input.theme),
     lyrics: lyrics.length > 0 ? lyrics : defaultProject.lyrics,
   }
+}
+
+export function createProjectId() {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID()
+  }
+
+  return `project-${Date.now().toString(36)}`
 }
 
 function parseMetadata(input: unknown): LyricProject['metadata'] {
@@ -107,6 +164,59 @@ function parseLyricLine(input: unknown, index: number): LyricLine {
     romanization: readString(input.romanization, ''),
     translation: readString(input.translation, ''),
     hints: parseHints(input.hints),
+    overrides: parseOverrides((input as UnknownRecord).overrides),
+  }
+}
+
+function parseOverrides(input: unknown) {
+  if (!isRecord(input)) {
+    return undefined
+  }
+
+  const maybeNumber = (key: string) => {
+    const val = (input as UnknownRecord)[key]
+    return typeof val === 'number' && Number.isFinite(val) ? val : undefined
+  }
+
+  const maybeString = (key: string) => {
+    const val = (input as UnknownRecord)[key]
+    return typeof val === 'string' && val.trim() ? val.trim() : undefined
+  }
+
+  const warmth = maybeNumber('warmth')
+  const intensity = maybeNumber('intensity')
+  const drift = maybeNumber('drift')
+  const glowOpacity = maybeNumber('glowOpacity')
+  const particleOpacity = maybeNumber('particleOpacity')
+  const emphasis = maybeNumber('emphasis')
+  const bgStart = maybeString('bgStart')
+  const bgMiddle = maybeString('bgMiddle')
+  const bgEnd = maybeString('bgEnd')
+
+  if (
+    warmth === undefined &&
+    intensity === undefined &&
+    drift === undefined &&
+    glowOpacity === undefined &&
+    particleOpacity === undefined &&
+    emphasis === undefined &&
+    bgStart === undefined &&
+    bgMiddle === undefined &&
+    bgEnd === undefined
+  ) {
+    return undefined
+  }
+
+  return {
+    ...(warmth !== undefined ? { warmth } : {}),
+    ...(intensity !== undefined ? { intensity } : {}),
+    ...(drift !== undefined ? { drift } : {}),
+    ...(glowOpacity !== undefined ? { glowOpacity } : {}),
+    ...(particleOpacity !== undefined ? { particleOpacity } : {}),
+    ...(emphasis !== undefined ? { emphasis } : {}),
+    ...(bgStart !== undefined ? { bgStart } : {}),
+    ...(bgMiddle !== undefined ? { bgMiddle } : {}),
+    ...(bgEnd !== undefined ? { bgEnd } : {}),
   }
 }
 
