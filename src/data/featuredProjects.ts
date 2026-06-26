@@ -1,23 +1,6 @@
-export type LyricLine = {
-  id: string
-  native: string
-  romanization: string
-  translation: string
-}
+import { parseLyricProject } from './projectSchema'
 
-export type LyricProject = {
-  id: string
-  metadata: {
-    title: string
-    artists: string[]
-    source: string
-    language: string
-  }
-  theme: string
-  lyrics: LyricLine[]
-}
-
-export const mojarManushProject: LyricProject = {
+const mojarManushProjectJson = {
   id: 'mojar-manush',
   metadata: {
     title: 'Mojar Manush',
@@ -33,6 +16,11 @@ export const mojarManushProject: LyricProject = {
       romanization: 'Tui to mojar manush, halka joler phanus',
       translation:
         'You are such a fascinating person, like a weightless lantern of water.',
+      hints: {
+        mood: 'wonder',
+        intensity: 0.46,
+        tags: ['water', 'light'],
+      },
     },
     {
       id: 'line-02',
@@ -40,6 +28,11 @@ export const mojarManushProject: LyricProject = {
       romanization: 'Akashey bhashis heshe ki darun megher beshe',
       translation:
         'Floating across the sky with a smile, looking so wonderful in the guise of clouds.',
+      hints: {
+        mood: 'weightless',
+        intensity: 0.52,
+        tags: ['sky', 'cloud'],
+      },
     },
     {
       id: 'line-03',
@@ -47,6 +40,11 @@ export const mojarManushProject: LyricProject = {
       romanization: 'Leela kore hawar sathe, jeno bhela bahar dekhas',
       translation:
         'Playing games with the wind, as if showcasing a beautiful spectacle on a raft.',
+      hints: {
+        mood: 'playful',
+        intensity: 0.58,
+        tags: ['wind', 'flow'],
+      },
     },
     {
       id: 'line-04',
@@ -54,6 +52,11 @@ export const mojarManushProject: LyricProject = {
       romanization: 'Emon-i rongbaji tor jeno shey tor-i akash',
       translation:
         'Such are your colorful displays, as if the entire sky belongs only to you.',
+      hints: {
+        mood: 'radiant',
+        intensity: 0.68,
+        tags: ['color', 'sky'],
+      },
     },
     {
       id: 'line-05',
@@ -61,6 +64,11 @@ export const mojarManushProject: LyricProject = {
       romanization: 'Leela tui ohonkare jolodher jolantore',
       translation:
         'You play your divine games with pride, passing between oceans and cosmic waters.',
+      hints: {
+        mood: 'vast',
+        intensity: 0.62,
+        tags: ['ocean', 'water'],
+      },
     },
     {
       id: 'line-06',
@@ -68,6 +76,11 @@ export const mojarManushProject: LyricProject = {
       romanization: 'Toke tui hariye pash amake rupantore',
       translation:
         'Losing yourself, you find your reflection transformed into me.',
+      hints: {
+        mood: 'reflective',
+        intensity: 0.56,
+        tags: ['mirror', 'transformation'],
+      },
     },
     {
       id: 'line-07',
@@ -75,6 +88,11 @@ export const mojarManushProject: LyricProject = {
       romanization: 'Bharete amar jonom, borshone pai je more',
       translation:
         'My birth lies in heavy burdens, yet I find my true self when the rain pours down.',
+      hints: {
+        mood: 'heavy',
+        intensity: 0.6,
+        tags: ['rain', 'earth'],
+      },
     },
     {
       id: 'line-08',
@@ -82,6 +100,11 @@ export const mojarManushProject: LyricProject = {
       romanization: 'Jhore je dhorar pore khuji shei abar tore',
       translation:
         'Falling upon the earth, I begin searching for you all over again.',
+      hints: {
+        mood: 'searching',
+        intensity: 0.5,
+        tags: ['falling', 'earth'],
+      },
     },
     {
       id: 'line-09',
@@ -89,6 +112,11 @@ export const mojarManushProject: LyricProject = {
       romanization: 'Kemone halka hobo eito amar akar',
       translation:
         'How can I ever become weightless? This heavy form is my very shape.',
+      hints: {
+        mood: 'burdened',
+        intensity: 0.44,
+        tags: ['weight', 'body'],
+      },
     },
     {
       id: 'line-10',
@@ -96,6 +124,11 @@ export const mojarManushProject: LyricProject = {
       romanization: 'Amake tanche mati, jol chara tar hahakor',
       translation:
         'The gravity of the earth pulls me down; without water, it cries out in despair.',
+      hints: {
+        mood: 'desolate',
+        intensity: 0.42,
+        tags: ['earth', 'dryness'],
+      },
     },
     {
       id: 'line-11',
@@ -103,6 +136,11 @@ export const mojarManushProject: LyricProject = {
       romanization: 'Mishti brishti beshe toke dei thakte heshe',
       translation:
         'In the guise of sweet rain, I allow you to live happily with a smile.',
+      hints: {
+        mood: 'gentle',
+        intensity: 0.54,
+        tags: ['rain', 'smile'],
+      },
     },
     {
       id: 'line-12',
@@ -110,6 +148,11 @@ export const mojarManushProject: LyricProject = {
       romanization: 'Tui tor rongbaji kor, dish more kadte sheshe',
       translation:
         'You keep playing your games with colors, leaving me to weep in the end.',
+      hints: {
+        mood: 'wounded',
+        intensity: 0.5,
+        tags: ['color', 'tears'],
+      },
     },
     {
       id: 'line-13',
@@ -117,6 +160,11 @@ export const mojarManushProject: LyricProject = {
       romanization: 'Tui ami eki tobu dui rupe biraj kori',
       translation:
         'You and I are one and the same, yet we exist in two completely different forms.',
+      hints: {
+        mood: 'dual',
+        intensity: 0.62,
+        tags: ['union', 'duality'],
+      },
     },
     {
       id: 'line-14',
@@ -124,6 +172,13 @@ export const mojarManushProject: LyricProject = {
       romanization: 'Kichutei mon manena toke ami kemone dhori',
       translation:
         'My heart simply refuses to accept this; how do I ever hold onto you?',
+      hints: {
+        mood: 'longing',
+        intensity: 0.66,
+        tags: ['love', 'loss'],
+      },
     },
   ],
 }
+
+export const mojarManushProject = parseLyricProject(mojarManushProjectJson)

@@ -1,5 +1,6 @@
 import { type CSSProperties, useEffect, useMemo, useState } from 'react'
-import { mojarManushProject, type LyricLine } from './data/featuredProjects'
+import { mojarManushProject } from './data/featuredProjects'
+import type { LyricLine } from './data/projectSchema'
 import './App.css'
 
 const project = mojarManushProject
@@ -15,22 +16,9 @@ const particleDreamTheme = {
   mutedText: 'rgba(226, 238, 255, 0.68)',
 }
 
-const lineMoods = [
-  { warmth: 0.14, drift: 8, intensity: 0.46 },
-  { warmth: 0.2, drift: 18, intensity: 0.52 },
-  { warmth: 0.26, drift: 29, intensity: 0.58 },
-  { warmth: 0.34, drift: 40, intensity: 0.68 },
-  { warmth: 0.2, drift: 52, intensity: 0.62 },
-  { warmth: 0.16, drift: 64, intensity: 0.56 },
-  { warmth: 0.08, drift: 76, intensity: 0.6 },
-  { warmth: 0.1, drift: 88, intensity: 0.5 },
-  { warmth: 0.04, drift: 98, intensity: 0.44 },
-  { warmth: 0.02, drift: 110, intensity: 0.42 },
-  { warmth: 0.16, drift: 124, intensity: 0.54 },
-  { warmth: 0.1, drift: 136, intensity: 0.5 },
-  { warmth: 0.22, drift: 150, intensity: 0.62 },
-  { warmth: 0.3, drift: 164, intensity: 0.66 },
-]
+const warmTags = new Set(['color', 'light', 'love', 'smile', 'sky'])
+const coolTags = new Set(['rain', 'water', 'ocean', 'cloud', 'tears'])
+const groundedTags = new Set(['earth', 'weight', 'body', 'dryness'])
 
 function App() {
   const [activeIndex, setActiveIndex] = useState(0)
@@ -47,7 +35,7 @@ function App() {
   )
   const visualStyle = useMemo(() => {
     const progress = activeIndex / Math.max(lyricCount - 1, 1)
-    const lineMood = lineMoods[activeIndex] ?? lineMoods[0]
+    const lineMood = getLineVisualMood(currentLine, activeIndex, lyricCount)
     const glowScale = 0.74 + lineMood.intensity * 0.62
 
     return {
@@ -67,7 +55,7 @@ function App() {
       '--particle-opacity': 0.16 + lineMood.intensity * 0.22,
       '--reader-lift': `${(lineMood.intensity - 0.5) * -18}px`,
     } as CSSProperties
-  }, [activeIndex, lyricCount])
+  }, [activeIndex, currentLine, lyricCount])
 
   const goToLine = (nextIndex: number) => {
     setActiveIndex(Math.min(Math.max(nextIndex, 0), lyricCount - 1))
@@ -193,6 +181,52 @@ function App() {
       </footer>
     </main>
   )
+}
+
+function getLineVisualMood(line: LyricLine, index: number, total: number) {
+  const progress = index / Math.max(total - 1, 1)
+  const tagWarmth = line.hints.tags.reduce((score, tag) => {
+    if (warmTags.has(tag)) {
+      return score + 0.08
+    }
+
+    if (coolTags.has(tag)) {
+      return score - 0.04
+    }
+
+    if (groundedTags.has(tag)) {
+      return score - 0.06
+    }
+
+    return score
+  }, 0)
+  const moodWarmth = getMoodWarmth(line.hints.mood)
+  const warmth = clamp(0.14 + progress * 0.12 + tagWarmth + moodWarmth, 0, 0.42)
+  const groundedWeight = line.hints.tags.some((tag) => groundedTags.has(tag)) ? -8 : 0
+
+  return {
+    warmth,
+    drift: 8 + progress * 156 + line.hints.intensity * 12 + groundedWeight,
+    intensity: line.hints.intensity,
+  }
+}
+
+function getMoodWarmth(mood: string) {
+  const normalizedMood = mood.toLowerCase()
+
+  if (['radiant', 'wonder', 'playful', 'gentle', 'longing'].includes(normalizedMood)) {
+    return 0.08
+  }
+
+  if (['heavy', 'burdened', 'desolate', 'wounded'].includes(normalizedMood)) {
+    return -0.08
+  }
+
+  return 0
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max)
 }
 
 function LyricText({
