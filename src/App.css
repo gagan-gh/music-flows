@@ -66,6 +66,9 @@
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .lyric-app::before {
@@ -541,6 +544,8 @@
 
 .reader {
   width: min(1040px, calc(100% - 32px));
+  min-width: 0;
+  max-width: 100%;
   min-height: 0;
   margin: 0 auto;
   display: grid;
@@ -552,8 +557,15 @@
   transition: transform 680ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.ghost-line,
+.current-line {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .current-line {
   min-height: 0;
+  width: 100%;
   display: grid;
   place-items: center;
   text-align: center;
@@ -573,6 +585,7 @@
 }
 
 .ghost-line {
+  width: 100%;
   min-height: 5.5rem;
   border: 0;
   padding: 0;
@@ -624,10 +637,16 @@
 .lyric-text {
   display: grid;
   gap: 12px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .lyric-text p {
   margin: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .romanization {
@@ -874,25 +893,19 @@
 
   .reader {
     width: calc(100% - 24px);
-    flex: 1;
-    grid-template-rows: minmax(0, 1fr);
-    gap: 0;
-    padding: 4px 0 8px;
-  }
-
-  .ghost-line {
-    display: none;
+    height: 100%;
+    grid-template-rows: auto auto auto;
+    gap: 22px;
+    padding: 12px 0 16px;
+    align-content: center;
   }
 
   .current-line {
-    align-content: center;
     padding: 0 4px;
   }
 
   .lyric-text {
     gap: 8px;
-    max-height: 100%;
-    overflow: hidden;
   }
 
   .romanization {
