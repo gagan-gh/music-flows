@@ -36,6 +36,7 @@ export type LyricProject = {
     artists: string[]
     source: string
     language: string
+    songUrl?: string
   }
   theme: ThemeId
   lyrics: LyricLine[]
@@ -50,6 +51,7 @@ const defaultProject: LyricProject = {
     artists: ['Unknown Artist'],
     source: 'Custom Project',
     language: 'Unknown',
+    songUrl: undefined,
   },
   theme: 'particle_dream',
   lyrics: [
@@ -75,6 +77,7 @@ export function createBlankProject(id = createProjectId()): LyricProject {
       artists: ['Unknown Artist'],
       source: 'My Projects',
       language: 'Unknown',
+      songUrl: undefined,
     },
     theme: 'particle_dream',
     lyrics: [
@@ -139,6 +142,7 @@ function parseMetadata(input: unknown): LyricProject['metadata'] {
     artists: readStringArray(input.artists, defaultProject.metadata.artists),
     source: readString(input.source, defaultProject.metadata.source),
     language: readString(input.language, defaultProject.metadata.language),
+    songUrl: readString(input.songUrl, undefined),
   }
 }
 

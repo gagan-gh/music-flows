@@ -6,11 +6,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import {
-  mojarManushProject,
-  mojarManushFractalProject,
-  mojarManushInkProject,
-} from './data/featuredProjects'
+import { featuredJsons } from './data/featuredProjects'
 import {
   createBlankProject,
   createProjectId,
@@ -29,11 +25,9 @@ import {
 import './App.css'
 import FractalGarden from './components/FractalGarden'
 
-const featuredProjects = [
-  mojarManushProject,
-  mojarManushFractalProject,
-  mojarManushInkProject,
-]
+const featuredProjects = featuredJsons.map((projectJson) =>
+  parseLyricProject(projectJson),
+)
 const featuredSourcePrefix = 'featured:'
 const localSourcePrefix = 'local:'
 
@@ -70,6 +64,30 @@ const themes = {
   },
 } as const
 
+const sampleProjectJson = `{
+  "id": "new-project",
+  "metadata": {
+    "title": "New Project",
+    "artists": ["Artist Name"],
+    "source": "My Projects",
+    "language": "English"
+  },
+  "theme": "fractal_garden",
+  "lyrics": [
+    {
+      "id": "line-01",
+      "native": "Soft rain at dawn.",
+      "romanization": "Soft rain at dawn.",
+      "translation": "Soft rain at dawn.",
+      "hints": {
+        "mood": "gentle",
+        "intensity": 0.5,
+        "tags": ["rain", "morning"]
+      }
+    }
+  ]
+}`
+
 const warmTags = new Set(['color', 'light', 'love', 'smile', 'sky'])
 const coolTags = new Set(['rain', 'water', 'ocean', 'cloud', 'tears'])
 const groundedTags = new Set(['earth', 'weight', 'body', 'dryness'])
@@ -79,7 +97,7 @@ function App() {
   const [activeSourceId, setActiveSourceId] = useState(
     `${featuredSourcePrefix}${featuredProjects[0].id}`,
   )
-  const [viewMode, setViewMode] = useState<'projects' | 'reader'>('projects')
+  const [viewMode, setViewMode] = useState<'projects' | 'reader' | 'guide'>('projects')
   const [activeIndex, setActiveIndex] = useState(0)
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -460,6 +478,9 @@ function App() {
               <button type="button" onClick={() => importInputRef.current?.click()}>
                 Import
               </button>
+              <button type="button" onClick={() => setViewMode('guide')}>
+                Guide
+              </button>
             </div>
 
             <input
@@ -498,6 +519,31 @@ function App() {
         </section>
       ) : null}
 
+      {viewMode === 'guide' ? (
+      <section className="project-screen" aria-label="JSON guide screen">
+        <div className="project-shell">
+          <div className="browser-header">
+            <div>
+              <p className="eyebrow">LyricCanvas</p>
+              <h2>JSON Guide</h2>
+            </div>
+            <button
+              type="button"
+              className="icon-button"
+              onClick={() => setViewMode('projects')}
+              aria-label="Back to projects"
+            >
+              ←
+            </button>
+          </div>
+          <JsonGuide />
+          <p className="browser-status" role="status">
+            Import your JSON from the Projects screen when ready.
+          </p>
+        </div>
+      </section>
+      ) : null}
+
       {viewMode === 'reader' ? (
       <section className="performance" aria-label="Lyric reader">
         <button
@@ -511,7 +557,20 @@ function App() {
         <header className="app-header" aria-label="Current song">
           <p className="eyebrow">{activeProject.metadata.source}</p>
           <h1>{activeProject.metadata.title}</h1>
-          <p className="artist-line">{activeProject.metadata.artists.join(' + ')}</p>
+          <p className="artist-line">
+            {activeProject.metadata.artists.join(' + ')}
+            {activeProject.metadata.songUrl && (
+              <a
+                href={activeProject.metadata.songUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="song-link-icon"
+                aria-label="Listen to song"
+              >
+                ♪
+              </a>
+            )}
+          </p>
         </header>
 
         <section className="reader" aria-live="polite">
@@ -599,6 +658,49 @@ function ProjectList({
       ) : (
         <p className="empty-message">{emptyMessage}</p>
       )}
+    </section>
+  )
+}
+
+function JsonGuide() {
+  return (
+    <section className="json-guide" aria-label="New project JSON guide">
+      <div className="guide-header">
+        <h3>Build a new project JSON</h3>
+        <p>
+          Create a new JSON file and import it using the Import button above. Use this structure to add a project manually.
+        </p>
+      </div>
+      <div className="guide-grid">
+        <div>
+          <strong>Required fields</strong>
+          <ul>
+            <li><code>id</code> – unique project identifier</li>
+            <li><code>metadata</code> – title, artists, source, language</li>
+            <li><code>theme</code> – <code>particle_dream</code>, <code>fractal_garden</code>, or <code>ink_painting</code></li>
+            <li><code>lyrics</code> – array of lyric lines</li>
+          </ul>
+          <strong>Line fields</strong>
+          <ul>
+            <li><code>native</code>, <code>romanization</code>, <code>translation</code></li>
+            <li><code>hints</code> – <code>mood</code>, <code>intensity</code> (0–1), <code>tags</code></li>
+            <li><code>overrides</code> – optional visual tuning for a line</li>
+          </ul>
+          <strong>Supported moods</strong>
+          <ul>
+            <li><code>wonder</code>, <code>gentle</code>, <code>radiant</code></li>
+            <li><code>longing</code>, <code>reflective</code>, <code>heavy</code></li>
+            <li><code>playful</code>, <code>desolate</code>, <code>wounded</code></li>
+          </ul>
+          <strong>Suggested tags</strong>
+          <ul>
+            <li><code>rain</code>, <code>water</code>, <code>ocean</code>, <code>cloud</code></li>
+            <li><code>light</code>, <code>color</code>, <code>sky</code>, <code>wind</code></li>
+            <li><code>earth</code>, <code>weight</code>, <code>tears</code>, <code>love</code></li>
+          </ul>
+        </div>
+        <pre className="guide-code">{sampleProjectJson}</pre>
+      </div>
     </section>
   )
 }
