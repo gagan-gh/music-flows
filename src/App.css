@@ -44,7 +44,7 @@
       var(--override-bg-end, var(--bg-end)) 100%
     );
   transition:
-    background 700ms ease,
+    background 900ms cubic-bezier(0.4, 0, 0.2, 1),
     color 300ms ease;
 }
 
@@ -54,13 +54,18 @@
 
 .reader-mode {
   overflow: hidden;
+  height: 100svh;
+  height: 100dvh;
 }
 
 .performance {
   min-width: 0;
+  height: 100%;
   min-height: 100svh;
+  min-height: 100dvh;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
 }
 
 .lyric-app::before {
@@ -539,20 +544,32 @@
   min-height: 0;
   margin: 0 auto;
   display: grid;
-  grid-template-rows: minmax(5.5rem, 0.58fr) auto minmax(5.5rem, 0.58fr);
+  grid-template-rows: minmax(5.5rem, 0.58fr) minmax(0, 1fr) minmax(5.5rem, 0.58fr);
   align-items: center;
   gap: 22px;
   padding: 12px 0 24px;
   transform: translateY(var(--reader-lift));
-  transition: transform 580ms ease;
+  transition: transform 680ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .current-line {
-  min-height: 18rem;
+  min-height: 0;
   display: grid;
   place-items: center;
   text-align: center;
-  animation: lyric-arrive 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform;
+}
+
+.current-line.line-forward {
+  animation: lyric-forward 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.current-line.line-backward {
+  animation: lyric-backward 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.current-line.line-none {
+  animation: lyric-settle 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .ghost-line {
@@ -563,20 +580,32 @@
   background: transparent;
   opacity: 0.42;
   cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
   transition:
     opacity 180ms ease,
     transform 180ms ease;
 }
 
-.ghost-line:hover:not(:disabled),
-.ghost-line:focus-visible:not(:disabled) {
-  opacity: 0.7;
+.ghost-line:active:not(:disabled) {
+  opacity: 0.42;
+  background: transparent;
 }
 
-.ghost-line:focus-visible,
-.reader-controls button:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.84);
-  outline-offset: 4px;
+@media (hover: hover) and (pointer: fine) {
+  .ghost-line:hover:not(:disabled),
+  .ghost-line:focus-visible:not(:disabled) {
+    opacity: 0.7;
+  }
+
+  .ghost-line:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.84);
+    outline-offset: 4px;
+  }
 }
 
 .ghost-line:disabled {
@@ -662,6 +691,20 @@
 .reader-controls button {
   min-height: 44px;
   padding: 0 16px;
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.reader-controls button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.84);
+  outline-offset: 4px;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .reader-controls button:focus:not(:focus-visible) {
+    outline: none;
+  }
 }
 
 .reader-controls button:disabled {
@@ -718,17 +761,37 @@
   }
 }
 
-@keyframes lyric-arrive {
+@keyframes lyric-forward {
   from {
     opacity: 0;
-    transform: translateY(16px) scale(0.985);
-    filter: blur(6px);
+    transform: translateY(14px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes lyric-backward {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lyric-settle {
+  from {
+    opacity: 0.72;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 
@@ -748,17 +811,15 @@
   .current-line {
     animation: none;
   }
+
+  .current-line.line-forward,
+  .current-line.line-backward,
+  .current-line.line-none {
+    animation: none;
+  }
 }
 
 @media (max-width: 720px) {
-  .lyric-app {
-    overflow: auto;
-  }
-
-  .performance {
-    min-height: auto;
-  }
-
   .project-screen {
     padding: 16px;
   }
@@ -776,29 +837,103 @@
     grid-template-columns: 1fr;
   }
 
+  .reader-back {
+    top: max(10px, env(safe-area-inset-top));
+    left: max(10px, env(safe-area-inset-left));
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 0.82rem;
+  }
+
   .app-header {
-    padding-top: 64px;
+    width: calc(100% - 24px);
+    padding: max(42px, calc(env(safe-area-inset-top) + 34px)) 0 6px;
+    text-align: left;
+  }
+
+  .app-header .eyebrow {
+    display: none;
+  }
+
+  .app-header h1 {
+    margin: 0 0 2px;
+    padding-right: 72px;
+    font-size: clamp(1.15rem, 5.2vw, 1.55rem);
+    line-height: 1.15;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .artist-line {
+    justify-content: flex-start;
+    font-size: 0.82rem;
+    gap: 6px;
+    opacity: 0.82;
   }
 
   .reader {
-    grid-template-rows: minmax(4.5rem, 0.45fr) auto minmax(4.5rem, 0.45fr);
-    gap: 14px;
+    width: calc(100% - 24px);
+    flex: 1;
+    grid-template-rows: minmax(0, 1fr);
+    gap: 0;
+    padding: 4px 0 8px;
+  }
+
+  .ghost-line {
+    display: none;
   }
 
   .current-line {
-    min-height: 19rem;
+    align-content: center;
+    padding: 0 4px;
+  }
+
+  .lyric-text {
+    gap: 8px;
+    max-height: 100%;
+    overflow: hidden;
+  }
+
+  .romanization {
+    font-size: clamp(1.35rem, 6.8vw, 2rem);
+    line-height: 1.15;
   }
 
   .translation {
-    max-width: 30rem;
+    font-size: clamp(0.88rem, 3.9vw, 1.05rem);
+    line-height: 1.35;
+    max-width: none;
+  }
+
+  .native {
+    font-size: clamp(0.8rem, 3.5vw, 0.94rem);
+    line-height: 1.35;
   }
 
   .reader-controls {
-    grid-template-columns: 1fr 1fr;
+    width: calc(100% - 24px);
+    padding: 10px 0 max(12px, env(safe-area-inset-bottom));
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .reader-controls button {
+    min-height: 38px;
+    min-width: 38px;
+    padding: 0 12px;
+    font-size: 0.84rem;
   }
 
   .progress {
-    grid-column: 1 / -1;
-    grid-row: 1;
+    grid-column: auto;
+    grid-row: auto;
+    gap: 6px;
+    font-size: 0.78rem;
+  }
+
+  .progress-track {
+    height: 3px;
   }
 }

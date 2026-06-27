@@ -99,7 +99,8 @@ function App() {
   )
   const [viewMode, setViewMode] = useState<'projects' | 'reader' | 'guide'>('projects')
   const [activeIndex, setActiveIndex] = useState(0)
-  const [touchStartX, setTouchStartX] = useState<number | null>(null)
+  const [lineDirection, setLineDirection] = useState<'forward' | 'backward' | 'none'>('none')
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusMessage, setStatusMessage] = useState('Projects stay in this browser.')
   const importInputRef = useRef<HTMLInputElement>(null)
@@ -187,10 +188,19 @@ function App() {
 
   useEffect(() => {
     setActiveIndex(0)
+    setLineDirection('none')
   }, [activeSourceId])
 
   const goToLine = (nextIndex: number) => {
-    setActiveIndex(Math.min(Math.max(nextIndex, 0), lyricCount - 1))
+    const clampedIndex = Math.min(Math.max(nextIndex, 0), lyricCount - 1)
+
+    if (clampedIndex > safeActiveIndex) {
+      setLineDirection('forward')
+    } else if (clampedIndex < safeActiveIndex) {
+      setLineDirection('backward')
+    }
+
+    setActiveIndex(clampedIndex)
   }
 
   const goPrevious = () => {
@@ -213,6 +223,7 @@ function App() {
 
       if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
         event.preventDefault()
+        setLineDirection('backward')
         setActiveIndex((index) => Math.max(index - 1, 0))
       }
 
@@ -222,6 +233,7 @@ function App() {
         event.key === ' '
       ) {
         event.preventDefault()
+        setLineDirection('forward')
         setActiveIndex((index) => Math.min(index + 1, lyricCount - 1))
       }
     }
@@ -233,26 +245,33 @@ function App() {
     }
   }, [lyricCount, viewMode])
 
-  const handleTouchEnd = (touchEndX: number) => {
+  const handleTouchEnd = (touchEndX: number, touchEndY: number) => {
     if (viewMode !== 'reader') {
       return
     }
 
-    if (touchStartX === null) {
+    if (touchStart === null) {
       return
     }
 
-    const distance = touchEndX - touchStartX
+    const deltaX = touchEndX - touchStart.x
+    const deltaY = touchEndY - touchStart.y
 
-    if (Math.abs(distance) > 48) {
-      if (distance < 0) {
+    if (Math.abs(deltaY) >= Math.abs(deltaX) && Math.abs(deltaY) > 48) {
+      if (deltaY < 0) {
+        goNext()
+      } else {
+        goPrevious()
+      }
+    } else if (Math.abs(deltaX) > 48) {
+      if (deltaX < 0) {
         goNext()
       } else {
         goPrevious()
       }
     }
 
-    setTouchStartX(null)
+    setTouchStart(null)
   }
 
   const handleWheel = (deltaY: number) => {
@@ -405,10 +424,14 @@ function App() {
       style={visualStyle}
       onTouchStart={(event) => {
         if (viewMode === 'reader') {
-          setTouchStartX(event.changedTouches[0].clientX)
+          const touch = event.changedTouches[0]
+          setTouchStart({ x: touch.clientX, y: touch.clientY })
         }
       }}
-      onTouchEnd={(event) => handleTouchEnd(event.changedTouches[0].clientX)}
+      onTouchEnd={(event) => {
+        const touch = event.changedTouches[0]
+        handleTouchEnd(touch.clientX, touch.clientY)
+      }}
       onWheel={(event) => handleWheel(event.deltaY)}
     >
       <div className="ambient ambient-one" />
@@ -577,21 +600,30 @@ function App() {
           <button
             className="ghost-line previous-line"
             type="button"
-            onClick={goPrevious}
+            onClick={(event) => {
+              goPrevious()
+              event.currentTarget.blur()
+            }}
             disabled={!previousLine}
             aria-label="Previous lyric"
           >
             {previousLine ? <LyricText line={previousLine} compact /> : null}
           </button>
 
-          <article className="current-line" key={currentLine.id}>
+          <article
+            className={`current-line line-${lineDirection}`}
+            key={currentLine.id}
+          >
             <LyricText line={currentLine} />
           </article>
 
           <button
             className="ghost-line next-line"
             type="button"
-            onClick={goNext}
+            onClick={(event) => {
+              goNext()
+              event.currentTarget.blur()
+            }}
             disabled={!nextLine}
             aria-label="Next lyric"
           >
