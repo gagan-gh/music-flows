@@ -51,6 +51,7 @@ function drawSilhouette(
   shape: string,
   size: number,
   color: string,
+  _baseHue = 0,
 ) {
   ctx.fillStyle = color
   ctx.strokeStyle = color
@@ -550,11 +551,7 @@ export default function FractalGarden({
               const isFlower = tip.rng() < 0.25
               const shapeToUse = isFlower ? tip.shape : 'oval_leaf'
 
-              // Extract hue value from color HSL string for details inside drawSilhouette
-              const match = tip.color.match(/\d+/)
-              const baseHueVal = match ? parseInt(match[0], 10) : 0
-
-              drawSilhouette(ctx, sx, sy, shapeToUse, leafSize, tip.color, baseHueVal)
+              drawSilhouette(ctx, sx, sy, shapeToUse, leafSize, tip.color)
             }
 
             // Splitting/branching
@@ -588,9 +585,7 @@ export default function FractalGarden({
               nextActive.push(tip)
             } else {
               const terminalSize = 10.0 + intensity * 8.0
-              const match = tip.color.match(/\d+/)
-              const baseHueVal = match ? parseInt(match[0], 10) : 0
-              drawSilhouette(ctx, tip.x, tip.y, tip.shape, terminalSize, tip.color, baseHueVal)
+              drawSilhouette(ctx, tip.x, tip.y, tip.shape, terminalSize, tip.color)
             }
           }
 

@@ -142,7 +142,7 @@ function parseMetadata(input: unknown): LyricProject['metadata'] {
     artists: readStringArray(input.artists, defaultProject.metadata.artists),
     source: readString(input.source, defaultProject.metadata.source),
     language: readString(input.language, defaultProject.metadata.language),
-    songUrl: readString(input.songUrl, undefined),
+    songUrl: typeof input.songUrl === 'string' ? input.songUrl : undefined,
   }
 }
 
