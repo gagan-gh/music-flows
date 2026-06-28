@@ -462,6 +462,7 @@ function App() {
       ) : activeProject.theme === 'vine_garden' ? (
         <>
           <VineScreensaver
+            key={activeProject.id}
             backgroundMode
             flowerType={vineSelection.flowerType}
             colorProfile={vineSelection.colorProfile}
