@@ -361,7 +361,7 @@ const FLOWER_COLORS = {
     { p: [270, 70, 65], p2: [275, 65, 55], center: [22, 55, 20] },   // 2 lavender
     { p: [200, 80, 60], p2: [205, 75, 50], center: [22, 55, 20] },   // 3 blue
     { p: [15,  90, 58], p2: [20,  85, 48], center: [22, 55, 20] },   // 4 burnt orange
-    { p: [160, 65, 55], p2: [165, 60, 45], center: [22, 55, 20] },   // 5 sage green
+    { p: [355, 80, 58], p2: [350, 75, 48], center: [22, 55, 20] },   // 5 deep rose-red
   ],
   hibiscus: [
     { p: [0, 90, 45],   p2: [15, 100, 65] },    // 0 natural red-orange
