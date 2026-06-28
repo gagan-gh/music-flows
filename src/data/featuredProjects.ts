@@ -198,7 +198,7 @@ export const bihariniProjectJson = {
     "language": "Bengali",
     "songUrl": "https://music.youtube.com/watch?v=mbpi6o4cktk"
   },
-  "theme": "particle_dream",
+  "theme": "vine_garden",
   "lyrics": [
     {
       "id": "line-01",
@@ -480,7 +480,7 @@ export const tomarGhore = {
     "language": "Bengali",
     "songUrl": "https://music.youtube.com/watch?v=DDHaR_hrxt8"
   },
-  "theme": "particle_dream",
+  "theme": "vine_garden",
   "lyrics": [
     {
       "id": "line-01",
