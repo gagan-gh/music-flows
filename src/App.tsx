@@ -612,7 +612,7 @@ function App() {
               a.click()
             }}
           >
-            🖼
+            ⎙
           </button>
         )}
 
