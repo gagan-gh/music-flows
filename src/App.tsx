@@ -598,6 +598,22 @@ function App() {
         >
           Projects
         </button>
+        {activeProject.theme === 'vine_garden' && (
+          <button
+            type="button"
+            className="vine-download"
+            onClick={() => {
+              const canvas = document.querySelector('canvas') as HTMLCanvasElement | null
+              if (!canvas) return
+              const a = document.createElement('a')
+              a.href = canvas.toDataURL('image/png')
+              a.download = 'vine-garden.png'
+              a.click()
+            }}
+          >
+            ⬇ PNG
+          </button>
+        )}
 
         <header className="app-header" aria-label="Current song">
           <p className="eyebrow">{activeProject.metadata.source}</p>

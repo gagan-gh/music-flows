@@ -799,6 +799,12 @@ export default function VineScreensaver({ backgroundMode = false, flowerType: bg
           <button onClick={() => setDarkMode(d => !d)} style={btn(darkMode ? "#4a6e4c" : "#4a7a4e")}>
             {darkMode ? "🌙" : "☀️"}
           </button>
+          <button onClick={() => {
+            const a = document.createElement("a");
+            a.href = canvasRef.current.toDataURL("image/png");
+            a.download = "vine-garden.png";
+            a.click();
+          }} style={btn(darkMode ? "#4a6e4c" : "#4a7a4e")}>⬇ PNG</button>
         </div>
 
         {/* Flower picker */}
