@@ -445,6 +445,20 @@ const FLOWERS = {
 };
 const FLOWER_KEYS = Object.keys(FLOWERS);
 
+// Deterministic seed hash (djb2) → [flowerType, colorProfile]
+// flowerType: equally distributed across 10 types (excludes 'none')
+// colorProfile: 0 with 50% probability, else 1–5 equally
+export function seedFlowerSelection(str) {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) h = ((h << 5) + h) ^ str.charCodeAt(i);
+  h = h >>> 0; // unsigned 32-bit
+  const typeKeys = FLOWER_KEYS.filter(k => k !== 'none');
+  const flowerType = typeKeys[h % typeKeys.length];
+  const h2 = ((h >>> 5) ^ (h * 0x9e3779b9)) >>> 0;
+  const colorProfile = (h2 % 2 === 0) ? 0 : 1 + ((h2 >>> 1) % 5);
+  return { flowerType, colorProfile };
+}
+
 // ─── VineSegment ──────────────────────────────────────────────────────────────
 class VineSegment {
   constructor(x, y, angle, length, age) {
@@ -503,10 +517,10 @@ class OccupancyGrid {
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function VineScreensaver() {
+export default function VineScreensaver({ backgroundMode = false, flowerType: bgFlowerType, colorProfile: bgColorProfile } = {}) {
   const canvasRef = useRef(null);
 
-  const [speed, setSpeed] = useState(0.4);
+  const [speed, setSpeed] = useState(0.15);
   const [segLen, setSegLen] = useState(14);
   const [wobble, setWobble] = useState(14);
   const [leafDensity, setLeafDensity] = useState(0.5);
@@ -527,8 +541,8 @@ export default function VineScreensaver() {
 
   useEffect(() => { runningRef.current = running; }, [running]);
   useEffect(() => { darkModeRef.current = darkMode; }, [darkMode]);
-  useEffect(() => { activeFlowerRef.current = activeFlower; }, [activeFlower]);
-  useEffect(() => { colorProfileRef.current = colorProfile; }, [colorProfile]);
+  useEffect(() => { activeFlowerRef.current = backgroundMode ? (bgFlowerType ?? 'none') : activeFlower; }, [backgroundMode, bgFlowerType, activeFlower]);
+  useEffect(() => { colorProfileRef.current = backgroundMode ? (bgColorProfile ?? 0) : colorProfile; }, [backgroundMode, bgColorProfile, colorProfile]);
   useEffect(() => { paramsRef.current = { speed, segLen, wobble, leafDensity }; },
     [speed, segLen, wobble, leafDensity]);
 
@@ -710,7 +724,7 @@ export default function VineScreensaver() {
         }
       }
     });
-  }, []);
+  }, [backgroundMode]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -762,6 +776,10 @@ export default function VineScreensaver() {
   );
 
   const COLOR_LABELS = ["Natural", "Alt 1", "Alt 2", "Alt 3", "Alt 4", "Alt 5"];
+
+  if (backgroundMode) {
+    return <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }} />;
+  }
 
   return (
     <div style={{ width: "100vw", height: "100vh", background: bg, display: "flex", flexDirection: "column", overflow: "hidden" }}>

@@ -1,4 +1,4 @@
-export const themeIds = ['particle_dream', 'fractal_garden', 'ink_painting'] as const
+export const themeIds = ['particle_dream', 'fractal_garden', 'ink_painting', 'vine_garden'] as const
 
 export type ThemeId = (typeof themeIds)[number]
 

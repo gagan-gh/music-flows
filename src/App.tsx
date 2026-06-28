@@ -24,6 +24,7 @@ import {
 } from './data/projectStorage'
 import './App.css'
 import FractalGarden from './components/FractalGarden'
+import VineScreensaver, { seedFlowerSelection } from './vine_screensaver.jsx'
 
 const featuredProjects = featuredJsons.map((projectJson) =>
   parseLyricProject(projectJson),
@@ -61,6 +62,16 @@ const themes = {
     glowThree: '#d7e3ff',
     text: '#fffdf8',
     mutedText: 'rgba(230, 226, 220, 0.68)',
+  },
+  vine_garden: {
+    backgroundStart: '#0d1a0f',
+    backgroundMiddle: '#0d1a0f',
+    backgroundEnd: '#0d1a0f',
+    glowOne: '#a8d5a2',
+    glowTwo: '#5ab85a',
+    glowThree: '#c6f7a1',
+    text: '#f0fff0',
+    mutedText: 'rgba(200, 240, 200, 0.70)',
   },
 } as const
 
@@ -181,6 +192,8 @@ function App() {
   }, [currentLine, lyricCount, safeActiveIndex, activeProject.theme])
 
   const fractalIntensity = (currentLine.overrides?.intensity ?? currentLine.hints.intensity) ?? 0.5
+  const vineSeed = (s: string) => s.length >= 5 ? s : null
+  const vineSelection = seedFlowerSelection(vineSeed(currentLine.translation) ?? vineSeed(currentLine.romanization) ?? currentLine.native ?? '')
 
   useEffect(() => {
     saveStoredProjects(storedProjects)
@@ -446,6 +459,15 @@ function App() {
           native={currentLine.native}
           translation={currentLine.translation}
         />
+      ) : activeProject.theme === 'vine_garden' ? (
+        <>
+          <VineScreensaver
+            backgroundMode
+            flowerType={vineSelection.flowerType}
+            colorProfile={vineSelection.colorProfile}
+          />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', pointerEvents: 'none', zIndex: 0 }} />
+        </>
       ) : (
         <div className="particle-field" aria-hidden="true">
         <span />
@@ -709,7 +731,7 @@ function JsonGuide() {
           <ul>
             <li><code>id</code> – unique project identifier</li>
             <li><code>metadata</code> – title, artists, source, language</li>
-            <li><code>theme</code> – <code>particle_dream</code>, <code>fractal_garden</code>, or <code>ink_painting</code></li>
+            <li><code>theme</code> – <code>particle_dream</code>, <code>fractal_garden</code>, <code>ink_painting</code>, or <code>vine_garden</code></li>
             <li><code>lyrics</code> – array of lyric lines</li>
           </ul>
           <strong>Line fields</strong>
