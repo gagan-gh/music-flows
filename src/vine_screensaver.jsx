@@ -730,12 +730,13 @@ export default function VineScreensaver({ backgroundMode = false, flowerType: bg
     const canvas = canvasRef.current;
     if (!canvas) return;
     const resize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
       if (!segmentsRef.current.length) initVine(canvas);
     };
     resize();
     window.addEventListener("resize", resize);
+    window.visualViewport?.addEventListener("resize", resize);
     let frame;
     const loop = () => {
       frame = requestAnimationFrame(loop);
@@ -747,7 +748,7 @@ export default function VineScreensaver({ backgroundMode = false, flowerType: bg
       draw();
     };
     frame = requestAnimationFrame(loop);
-    return () => { cancelAnimationFrame(frame); window.removeEventListener("resize", resize); };
+    return () => { cancelAnimationFrame(frame); window.removeEventListener("resize", resize); window.visualViewport?.removeEventListener("resize", resize); };
   }, [initVine, grow, draw]);
 
   const handleClear = () => {
@@ -778,7 +779,7 @@ export default function VineScreensaver({ backgroundMode = false, flowerType: bg
   const COLOR_LABELS = ["Natural", "Alt 1", "Alt 2", "Alt 3", "Alt 4", "Alt 5"];
 
   if (backgroundMode) {
-    return <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }} />;
+    return <canvas ref={canvasRef} style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', display: 'block' }} />;
   }
 
   return (
