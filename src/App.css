@@ -210,6 +210,14 @@
   place-items: start center;
 }
 
+.metadata-page-wrap {
+  width: 100%;
+  min-height: 100svh;
+  padding: 32px 20px;
+  display: grid;
+  place-items: start center;
+}
+
 .project-shell {
   width: min(1040px, 100%);
   min-height: calc(100svh - 64px);
@@ -866,6 +874,10 @@
 
 @media (max-width: 720px) {
   .project-screen {
+    padding: 16px;
+  }
+
+  .metadata-page-wrap {
     padding: 16px;
   }
 

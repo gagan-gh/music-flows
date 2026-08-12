@@ -24,6 +24,7 @@ import {
 } from './data/projectStorage'
 import './App.css'
 import FractalGarden from './components/FractalGarden'
+import MetadataEditor from './components/MetadataEditor'
 import VineScreensaver, { seedFlowerSelection } from './vine_screensaver.jsx'
 
 const featuredProjects = featuredJsons.map((projectJson) =>
@@ -108,7 +109,7 @@ function App() {
   const [activeSourceId, setActiveSourceId] = useState(
     `${featuredSourcePrefix}${featuredProjects[0].id}`,
   )
-  const [viewMode, setViewMode] = useState<'projects' | 'reader' | 'guide'>('projects')
+  const [viewMode, setViewMode] = useState<'projects' | 'reader' | 'guide' | 'metadata'>('projects')
   const [activeIndex, setActiveIndex] = useState(0)
   const [lineDirection, setLineDirection] = useState<'forward' | 'backward' | 'none'>('none')
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null)
@@ -433,7 +434,7 @@ function App() {
 
   return (
     <main
-      className={`lyric-app ${viewMode === 'projects' ? 'project-mode' : 'reader-mode'}`}
+      className={`lyric-app ${viewMode === 'reader' ? 'reader-mode' : 'project-mode'}`}
       style={visualStyle}
       onTouchStart={(event) => {
         if (viewMode === 'reader') {
@@ -527,6 +528,9 @@ function App() {
               <button type="button" onClick={() => setViewMode('guide')}>
                 Guide
               </button>
+              <button type="button" onClick={() => setViewMode('metadata')}>
+                MP3 editor
+              </button>
             </div>
 
             <input
@@ -588,6 +592,12 @@ function App() {
           </p>
         </div>
       </section>
+      ) : null}
+
+      {viewMode === 'metadata' ? (
+        <div className="metadata-page-wrap">
+          <MetadataEditor onBack={() => setViewMode('projects')} />
+        </div>
       ) : null}
 
       {viewMode === 'reader' ? (
