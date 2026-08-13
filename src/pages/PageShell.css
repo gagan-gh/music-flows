@@ -1,0 +1,9 @@
+.page-shell { min-height: 100svh; padding: 32px 20px; display: grid; place-items: start center; color: #f8fbff; background: radial-gradient(circle at 20% 10%, rgba(103,232,249,.18), transparent 30rem), linear-gradient(145deg,#101827,#302246 50%,#0b1822); }
+.page-card { width: min(1040px, 100%); min-height: calc(100svh - 64px); padding: 28px; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; background: linear-gradient(180deg,rgba(9,15,25,.78),rgba(9,15,25,.46)); backdrop-filter: blur(18px); }
+.eyebrow { margin: 0; color: rgba(226,238,255,.68); font-size: .78rem; line-height: 1.2; text-transform: uppercase; letter-spacing: .14em; }
+.not-found-page { display: grid; align-content: center; justify-items: start; gap: 14px; }
+.not-found-page h1,.not-found-page p { margin: 0; }
+.not-found-page > p:not(.eyebrow) { color: rgba(226,238,255,.72); }
+.page-link { display: inline-flex; min-height: 42px; align-items: center; padding: 0 14px; border: 1px solid rgba(255,255,255,.22); border-radius: 8px; color: inherit; text-decoration: none; background: rgba(255,255,255,.08); }
+.page-link:hover { background: rgba(255,255,255,.16); }
+@media (max-width: 720px) { .page-shell { padding: 16px; } .page-card { min-height: auto; padding: 18px; } }

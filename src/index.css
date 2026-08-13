@@ -18,14 +18,12 @@
 
 html {
   min-height: 100%;
-  overscroll-behavior: none;
 }
 
 body {
   min-width: 320px;
   min-height: 100%;
   margin: 0;
-  overscroll-behavior: none;
 }
 
 button {
